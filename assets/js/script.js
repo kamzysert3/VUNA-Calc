@@ -18,6 +18,7 @@ function toggleTheme() {
     }
 }
 
+var inverseMode = false;
 var currentExpression = '';
 
 var currencyRates = {
@@ -253,17 +254,24 @@ function calculateResult() {
     if (currentExpression.length === 0) return;
 
     try {
-        let result = eval(currentExpression);
+        const safeExpression = normalizeExpression(currentExpression);
+
+        let result = eval(safeExpression);
+
         if (isNaN(result) || !isFinite(result)) {
             result = 'Error';
         }
+
         currentExpression = result.toString();
         updateResult();
+        document.getElementById('word-result').innerHTML = numberToWords(result);
+
     } catch (e) {
         currentExpression = 'Error';
         updateResult();
     }
 }
+
 
 function applyLogarithm() {
   if (left.length === 0) return;
@@ -285,125 +293,45 @@ function applyLogarithm() {
   updateResult();
 }
 
-function differentiateExpression() {
-  const input = document.getElementById("diff-input");
-  const output = document.getElementById("diff-output");
-  if (!input || !output) return;
+function toggleInverseMode() { inverseMode = !inverseMode; document.getElementById('sin-btn').textContent = inverseMode ? 'sin⁻¹' : 'sin'; document.getElementById('cos-btn').textContent = inverseMode ? 'cos⁻¹' : 'cos'; document.getElementById('tan-btn').textContent = inverseMode ? 'tan⁻¹' : 'tan'; document.getElementById('inv-btn').classList.toggle('active', inverseMode); }
 
-  const raw = input.value.trim();
-  if (!raw) {
-    output.innerText = "Enter an expression to differentiate.";
-    return;
-  }
+function sinDeg(x) { return Math.sin(x * Math.PI / 180); }
+function cosDeg(x) { return Math.cos(x * Math.PI / 180); }
+function tanDeg(x) { return Math.tan(x * Math.PI / 180); }
 
-  try {
-    const normalized = normalizeInput(raw);
-    const expr = stripDerivativePrefix(normalized);
-    const tokens = tokenize(expr);
-    const parser = new Parser(tokens);
-    const ast = parser.parseExpression();
-    if (!parser.isAtEnd()) {
-      throw new Error("Unexpected token near the end of the expression.");
-    }
-    const derivative = simplify(differentiate(ast));
-    // output.innerText = toString(derivative);
+function asinDeg(x) { return Math.asin(x) * 180 / Math.PI; }
+function acosDeg(x) { return Math.acos(x) * 180 / Math.PI; }
+function atanDeg(x) { return Math.atan(x) * 180 / Math.PI; }
 
-    currentExpression = toString(derivative);
+function appendTrig(func) {
+    currentExpression += func + '(';
     updateResult();
-  } catch (error) {
-    output.innerText = error.message || "Invalid expression.";
-  }
 }
 
-function normalizeInput(value) {
-  return value.replace(/−/g, "-").replace(/\s+/g, " ");
+
+function trigButtonPressed(func) {
+    const map = inverseMode
+        ? { sin: 'asin', cos: 'acos', tan: 'atan' }
+        : { sin: 'sin',  cos: 'cos',  tan: 'tan' };
+
+    appendTrig(map[func]);
 }
 
-function stripDerivativePrefix(value) {
-  const trimmed = value.trim();
-  if (/^d\/dx/i.test(trimmed)) {
-    let rest = trimmed.replace(/^d\/dx/i, "").trim();
-    if (rest.startsWith("(") && rest.endsWith(")")) {
-      rest = rest.slice(1, -1).trim();
-    }
-    return rest;
-  }
-  return trimmed;
+function normalizeExpression(expr) {
+    return expr
+        .replace(/asin\(/g, 'asinDeg(')
+        .replace(/acos\(/g, 'acosDeg(')
+        .replace(/atan\(/g, 'atanDeg(')
+        .replace(/sin\(/g, 'sinDeg(')
+        .replace(/cos\(/g, 'cosDeg(')
+        .replace(/tan\(/g, 'tanDeg(');
 }
 
-function tokenize(value) {
-  const tokens = [];
-  let i = 0;
 
-  while (i < value.length) {
-    const ch = value[i];
-
-    if (ch === " ") {
-      i += 1;
-      continue;
-    }
-
-    if ((ch >= "0" && ch <= "9") || ch === ".") {
-      let num = ch;
-      i += 1;
-      while (i < value.length && ((value[i] >= "0" && value[i] <= "9") || value[i] === ".")) {
-        num += value[i];
-        i += 1;
-      }
-      if (num === ".") throw new Error("Invalid number format.");
-      tokens.push({ type: "number", value: parseFloat(num) });
-      continue;
-    }
-
-    if ((ch >= "a" && ch <= "z") || (ch >= "A" && ch <= "Z")) {
-      let ident = ch;
-      i += 1;
-      while (i < value.length && /[a-zA-Z]/.test(value[i])) {
-        ident += value[i];
-        i += 1;
-      }
-      const lower = ident.toLowerCase();
-      if (lower === "x") {
-        tokens.push({ type: "variable", name: "x" });
-      } else if (["sin", "cos", "tan", "ln", "log", "exp"].includes(lower)) {
-        tokens.push({ type: "func", name: lower });
-      } else if (lower === "e") {
-        tokens.push({ type: "constant", name: "e", value: Math.E });
-      } else if (lower === "pi") {
-        tokens.push({ type: "constant", name: "pi", value: Math.PI });
-      } else {
-        throw new Error(`Unknown identifier: ${ident}`);
-      }
-      continue;
-    }
-
-    if ("+-*/^()".includes(ch)) {
-      if (ch === "(") tokens.push({ type: "lparen", value: ch });
-      else if (ch === ")") tokens.push({ type: "rparen", value: ch });
-      else tokens.push({ type: "operator", value: ch });
-      i += 1;
-      continue;
-    }
-
-    throw new Error(`Unsupported character: ${ch}`);
-  }
-
-  return insertImplicitMultiplication(tokens);
-}
-
-function insertImplicitMultiplication(tokens) {
-  const result = [];
-  const leftTypes = ["number", "variable", "constant", "rparen"];
-  const rightTypes = ["number", "variable", "constant", "func", "lparen"];
-
-  for (let i = 0; i < tokens.length; i += 1) {
-    const current = tokens[i];
-    const next = tokens[i + 1];
-    result.push(current);
-    if (!next) continue;
-    if (leftTypes.includes(current.type) && rightTypes.includes(next.type)) {
-      result.push({ type: "operator", value: "*" });
-    }
+function isPrime(num) {
+  // Numbers less than 2 are not prime
+  if (num <= 1) {
+    return false;
   }
 
   return result;
@@ -918,9 +846,11 @@ function numberToWords(num) {
             result += ' ' + (digit === '0' ? 'Zero' : ones[parseInt(digit)]);
         }
     }
-
     return result.trim();
 }
+
+    
+
 
 // ------------------------------
 // Update Display
@@ -1106,3 +1036,41 @@ function normalizeSpeech(text) {
     .split(" ")
     .filter(t => t.trim() !== "");
 }
+
+document.addEventListener('keydown', function(event) {
+    const key = event.key;
+
+    if (!isNaN(key)) { // Check if the key is a number
+        appendToResult(key);
+    } else if (key === '+' || key === '-' || key === '*' || key === '/') {
+        operatorToResult(key);
+    } else if (key === 'Enter') {
+        calculateResult();
+    } else if (key === 'Backspace') {
+        backspace();
+    } else if (key === 'Escape') {
+        clearResult();
+    } else if (key === '(' || key === ')') {
+        bracketToResult(key);
+    } else if (key === '.') {
+        appendToResult(key);
+    }else if (key === 's') {
+        trigButtonPressed('sin');
+    } else if (key === 'c') {
+        trigButtonPressed('cos');
+    } else if (key === 't') {
+        trigButtonPressed('tan');
+    }
+    else if (key === 'i') {
+        toggleInverseMode();
+    }
+    else if (key === 'A') {
+        trigButtonPressed('sin');
+    }
+    else if (key === 'C') {
+        trigButtonPressed('cos');
+    }
+    else if (key === 'T') {
+        trigButtonPressed('tan');
+    }
+});

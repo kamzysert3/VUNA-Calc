@@ -689,8 +689,7 @@ border-radius:15px;">
                     <!-- Row 6 - New functions -->
                     <button class="btn btn-special" onclick="operatorToResult('^')">x^y</button>
                     <button class="btn btn-special" onclick="checkPrime()">Prime?</button>
-                     <button class="btn btn-special" onclick="solveSimultaneous()">sim-EQ</button>
-                    <button class="btn btn-light" onclick="appendToResult(',')">,</button>
+                    
                     
                     <button class="btn btn-power btn-special" onclick="calculateSquare()">x²</button>
                     <button class="btn btn-power btn-special" onclick="calculateCube()">x³</button>
@@ -718,7 +717,8 @@ border-radius:15px;">
                     </button>
                     <button class="btn btn-operator" onclick="convertToHex()">HEX</button>
                     <button class="btn btn-operator" onclick="openGeometry()">📐 Geo</button>
-
+                    
+                    
                     <!-- Row 8                  -->
                     <button class="btn btn-equals" onclick="calculateResult()" stylex="grid-column: span 3;">=</button>
                   </div>
@@ -729,13 +729,13 @@ border-radius:15px;">
                         <div class="accordion-item">
                           <h2 class="accordion-header" id="headingConverter">
                             <button class="accordion-button collapsed d-flex justify-content-between align-items-center"
-                              type="button" data-bs-toggle="collapse" data-bs-target="#collapseConverter"
-                              aria-expanded="false" aria-controls="collapseConverter">
-                              <span>🔄 Unit Converter</span>
-                            </button>
-                          </h2>
-                          <div id="collapseConverter" class="accordion-collapse collapse"
-                            aria-labelledby="headingConverter" data-bs-parent="#converterAccordion">
+                            type="button" data-bs-toggle="collapse" data-bs-target="#collapseConverter"
+                            aria-expanded="false" aria-controls="collapseConverter">
+                            <span>🔄 Unit Converter</span>
+                          </button>
+                        </h2>
+                        <div id="collapseConverter" class="accordion-collapse collapse"
+                        aria-labelledby="headingConverter" data-bs-parent="#converterAccordion">
                             <div class="accordion-body">
                               <!-- Length Conversion -->
                               <div class="mb-3">
@@ -754,8 +754,8 @@ border-radius:15px;">
                                   </select>
                                   <span class="input-group-text">→</span>
                                   <select class="form-select form-select-sm" id="to-length"
-                                    onchange="convertUnit('length')">
-                                    <option value="mile">miles</option>
+                                  onchange="convertUnit('length')">
+                                  <option value="mile">miles</option>
                                     <option value="km">km</option>
                                     <option value="m">m</option>
                                     <option value="yard">yards</option>
@@ -765,14 +765,14 @@ border-radius:15px;">
                                   <span class="input-group-text" id="length-result">0</span>
                                 </div>
                               </div>
-
+                              
                               <!-- Weight Conversion -->
                               <div class="mb-3">
                                 <label class="form-label small" style="font-weight: 600;">Weight</label>
                                 <div class="input-group input-group-sm">
                                   <input type="number" class="form-control" id="weight-value" placeholder="Value"
                                     value="1" oninput="convertUnit('weight')">
-                                  <select class="form-select form-select-sm" id="from-weight"
+                                    <select class="form-select form-select-sm" id="from-weight"
                                     onchange="convertUnit('weight')">
                                     <option value="kg">kg</option>
                                     <option value="g">g</option>
@@ -781,28 +781,28 @@ border-radius:15px;">
                                   </select>
                                   <span class="input-group-text">→</span>
                                   <select class="form-select form-select-sm" id="to-weight"
-                                    onchange="convertUnit('weight')">
-                                    <option value="lb">pounds</option>
-                                    <option value="kg">kg</option>
-                                    <option value="g">g</option>
-                                    <option value="oz">ounces</option>
-                                  </select>
-                                  <span class="input-group-text" id="weight-result">0</span>
-                                </div>
+                                  onchange="convertUnit('weight')">
+                                  <option value="lb">pounds</option>
+                                  <option value="kg">kg</option>
+                                  <option value="g">g</option>
+                                  <option value="oz">ounces</option>
+                                </select>
+                                <span class="input-group-text" id="weight-result">0</span>
                               </div>
-
-                              <!-- Temperature Conversion -->
-                              <div class="mb-3">
-                                <label class="form-label small" style="font-weight: 600;">Temperature</label>
-                                <div class="input-group input-group-sm">
+                            </div>
+                            
+                            <!-- Temperature Conversion -->
+                            <div class="mb-3">
+                              <label class="form-label small" style="font-weight: 600;">Temperature</label>
+                              <div class="input-group input-group-sm">
                                   <input type="number" class="form-control" id="temp-value" placeholder="Value"
-                                    value="0" oninput="convertUnit('temperature')">
+                                  value="0" oninput="convertUnit('temperature')">
                                   <select class="form-select form-select-sm" id="from-temp"
-                                    onchange="convertUnit('temperature')">
-                                    <option value="C">°C</option>
-                                    <option value="F">°F</option>
-                                    <option value="K">K</option>
-                                  </select>
+                                  onchange="convertUnit('temperature')">
+                                  <option value="C">°C</option>
+                                  <option value="F">°F</option>
+                                  <option value="K">K</option>
+                                </select>
                                   <span class="input-group-text">→</span>
                                   <select class="form-select form-select-sm" id="to-temp"
                                     onchange="convertUnit('temperature')">
@@ -831,10 +831,10 @@ border-radius:15px;">
                                   </select>
                                   <span class="input-group-text">→</span>
                                   <select class="form-select form-select-sm" id="to-currency"
-                                    onchange="convertUnit('currency')">
-                                    <option value="EUR">EUR</option>
-                                    <option value="USD">USD</option>
-                                    <option value="GBP">GBP</option>
+                                  onchange="convertUnit('currency')">
+                                  <option value="EUR">EUR</option>
+                                  <option value="USD">USD</option>
+                                  <option value="GBP">GBP</option>
                                     <option value="JPY">JPY</option>
                                     <option value="CAD">CAD</option>
                                     <option value="AUD">AUD</option>
@@ -842,7 +842,7 @@ border-radius:15px;">
                                   </select>
                                   <span class="input-group-text" id="currency-result">0</span>
                                   <button id="currency-refresh-btn" class="btn btn-sm btn-outline-info"
-                                    onclick="fetchCurrencyRates()" title="Refresh rates">🔄</button>
+                                  onclick="fetchCurrencyRates()" title="Refresh rates">🔄</button>
                                 </div>
                                 <small class="text-muted" id="currency-timestamp"></small>
                               </div>
@@ -867,7 +867,7 @@ border-radius:15px;">
                             </button>
                           </h2>
                           <div id="collapsePhysics" class="accordion-collapse collapse"
-                            aria-labelledby="headingPhysics" data-bs-parent="#converterAccordion">
+                          aria-labelledby="headingPhysics" data-bs-parent="#converterAccordion">
                             <div class="accordion-body">
                               
                               <!-- Category Selection -->
@@ -881,7 +881,7 @@ border-radius:15px;">
                                   <option value="waves">Waves</option>
                                 </select>
                               </div>
-
+                              
                               <!-- Formula Selection -->
                               <div class="mb-3">
                                 <label class="form-label small" style="font-weight: 600;">Select Formula</label>
@@ -889,10 +889,10 @@ border-radius:15px;">
                                   <option value="">-- Select Formula --</option>
                                 </select>
                               </div>
-
+                              
                               <!-- Dynamic Inputs Container -->
                               <div id="physics-inputs-container"></div>
-
+                              
                               <!-- Calculate Button -->
                               <div class="d-grid gap-2 mb-3">
                                 <button class="btn btn-primary btn-sm" onclick="calculatePhysics()">
@@ -905,7 +905,7 @@ border-radius:15px;">
 
                               <!-- Result Display -->
                               <div id="physics-result"></div>
-
+                              
                               <!-- Info Box -->
                               <div class="alert alert-info alert-sm py-2 px-3 mb-0" style="font-size: 0.85rem;">
                                 <strong>💡 Tip:</strong> Select a category and formula to get started. Common formulas include velocity, force, electrical power, and wave speed.
@@ -914,8 +914,28 @@ border-radius:15px;">
                           </div>
                         </div>
                         <!-- END Physics Calculator Section -->
-
+                        
                       </div>
+                      <!-- Simultaneous Equation Solver -->
+    <div class="mb-3">
+    <button class="btn btn-special w-100 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#simul-solver" aria-expanded="false" aria-controls="simul-solver">
+      Solve Simultaneous Equations
+    </button>
+    
+    <div class="collapse" id="simul-solver">
+      <div class="card card-body p-3">
+        <div class="mb-2">
+          <label class="form-label small-label">Equation 1 (e.g. 2x+3y=6)</label>
+          <input type="text" class="form-control" id="eq1" placeholder="2x + 3y = 6">
+        </div>
+        <div class="mb-2">
+          <label class="form-label small-label">Equation 2 (e.g. x- y=1)</label>
+          <input type="text" class="form-control" id="eq2" placeholder="x - y = 1">
+        </div>
+        <button class="btn btn-operator w-100" id="solve-btn" onclick="solveSimultaneous()">Solve</button>
+      </div>
+    </div>
+    </div>
 
                       <div class="word-display-area" id="word-area">
                         <div id="word-result"></div>

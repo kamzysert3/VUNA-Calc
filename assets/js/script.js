@@ -1656,56 +1656,6 @@ function clearHistory() {
   localStorage.removeItem("calcHistory");
   renderHistory();
 }
-function solveSimultaneous() {
-
-    let input = document.getElementById("result").value.trim();
-
-    if (!input || input === "0") {
-        alert("Enter: a1,b1,c1,a2,b2,c2 where a1+b1=c1, a2+b2=c2 .. the commas are necessary");
-        return;
-    }
-
-    // Remove ALL spaces
-    input = input.replace(/\s/g, "");
-
-    let values = input.split(",");
-
-    if (values.length !== 6) {
-        alert("Wrong format.\nUse exactly:\n2,3,13,4,1,11");
-        return;
-    }
-
-    let nums = values.map(v => parseFloat(v));
-
-    if (nums.some(isNaN)) {
-        alert("Invalid numbers.");
-        return;
-    }
-
-    let [a1, b1, c1, a2, b2, c2] = nums;
-
-    let D = (a1 * b2) - (a2 * b1);
-
-    if (D === 0) {
-        document.getElementById("result").value = "No unique solution";
-        left = "";
-        operator = "";
-        right = "";
-        return;
-    }
-
-    let Dx = (c1 * b2) - (c2 * b1);
-    let Dy = (a1 * c2) - (a2 * c1);
-
-    let x = Dx / D;
-    let y = Dy / D;
-
-    document.getElementById("result").value = "x=" + x + ", y=" + y;
-
-    left = "";
-    operator = "";
-    right = "";
-}
 
 document.addEventListener("DOMContentLoaded", function () {
   const scrollBtn = document.getElementById("scroll-to-calculator");
@@ -2103,4 +2053,84 @@ function cubeRootResult() {
   operator = "";
   right = "";
   updateResult();
+}
+
+function solveSimultaneous() {
+  const eq1 = document.getElementById("eq1").value;
+  const eq2 = document.getElementById("eq2").value;
+
+  if (!eq1 || !eq2) {
+    alert("Please enter both equations!");
+    return;
+  }
+
+  try {
+    const parseEq = (eq) => {
+      // Remove spaces
+      eq = eq.replace(/\s+/g, '');
+
+      // Match coefficients: ax, by, =c
+      let a = 0, b = 0, c = 0;
+
+      // Split into left and right of =
+      const sides = eq.split('=');
+      if (sides.length !== 2) throw new Error("Equation must contain '='");
+
+      const left = sides[0];
+      c = parseFloat(sides[1]);
+
+      // Find x coefficient
+      const xMatch = left.match(/([+-]?[\d.]*)x/);
+      if (xMatch) {
+        let val = xMatch[1];
+        a = val === "" || val === "+" ? 1 : val === "-" ? -1 : parseFloat(val);
+      }
+
+      // Find y coefficient
+      const yMatch = left.match(/([+-]?[\d.]*)y/);
+      if (yMatch) {
+        let val = yMatch[1];
+        b = val === "" || val === "+" ? 1 : val === "-" ? -1 : parseFloat(val);
+      }
+
+      return { a, b, c };
+    };
+
+    const { a: a1, b: b1, c: c1 } = parseEq(eq1);
+    const { a: a2, b: b2, c: c2 } = parseEq(eq2);
+
+    // Solve using Cramer's rule
+    const det = a1 * b2 - a2 * b1;
+    if (det === 0) throw new Error("No unique solution exists");
+
+    const x = (c1 * b2 - c2 * b1) / det;
+    const y = (a1 * c2 - a2 * c1) / det;
+
+    const resultStr = `x = ${x}, y = ${y}`;
+
+    // Update main calculator display
+    currentExpression = `x=${x},y=${y}`;
+    updateResult();
+
+    // Show in word area
+    const wordResult = document.getElementById("word-result");
+    const wordArea = document.getElementById("word-area");
+    wordResult.innerHTML = `<span class="small-label">Simultaneous Equation Result</span><strong>${resultStr}</strong>`;
+    wordArea.style.display = "flex";
+
+    // Add to history
+    calculationHistory?.push({
+      expression: eq1 + " & " + eq2,
+      words: resultStr,
+      time: new Date().toLocaleTimeString(),
+    });
+    if (calculationHistory.length > 20) calculationHistory.shift();
+    localStorage.setItem("calcHistory", JSON.stringify(calculationHistory));
+    renderHistory();
+
+  } catch (err) {
+    alert("Error: " + err.message);
+    currentExpression = "Error";
+    updateResult();
+  }
 }
